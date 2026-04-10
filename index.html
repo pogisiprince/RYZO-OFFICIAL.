@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" oncontextmenu="return false;"> <head>
+<html lang="en" oncontextmenu="return false;"> 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RYZO-OS | RYZO OFFICIAL</title>
+    <title>RYZO OFFICIAL | SECURED OS</title>
     
     <script>
+        // Anti-Inspect Security
         document.onkeydown = function(e) {
             if(e.keyCode == 123 || (e.ctrlKey && (e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.keyCode == 85))) {
                 return false;
             }
         };
+        setInterval(function(){ debugger; }, 100); 
     </script>
 
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
@@ -19,65 +22,97 @@
     <style>
         :root { 
             --accent: #8e44ad; 
-            --market-red: #ff3131; /* Specific Red for Market */
-            --bg: url('https://i.ibb.co/vz6V0qP/admin.jpg'); 
-            --bg-overlay: rgba(0, 0, 0, 0.92);
+            --bg: #000; 
             --card: rgba(255, 255, 255, 0.05); 
             --gold: #ffcf40; 
+            --active-nav: #ff4d4d; 
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); background-size: cover; background-position: center; color: white; overflow: hidden; height: 100vh; }
-        body::before { content: ""; position: fixed; inset: 0; background: var(--bg-overlay); z-index: -1; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Rajdhani', sans-serif; -webkit-user-select: none; }
+        body { background: var(--bg); color: white; overflow: hidden; height: 100vh; position: relative; }
+        
+        .bg-overlay { 
+            position: fixed; inset: 0; 
+            background: url('https://raw.githubusercontent.com/pogisiprince/RYZO-OFFICIAL/main/1000044805.jpg'); 
+            background-size: cover; background-position: center; 
+            opacity: 0.15; z-index: -1; filter: blur(3px);
+            animation: pulse 10s infinite alternate;
+        }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
 
-        .page { height: calc(100vh - 130px); overflow-y: auto; display: none; padding: 15px; padding-bottom: 140px; }
-        .page.active { display: block; }
+        header { padding: 15px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--accent); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 0 15px var(--accent); }
+        .logo { font-family: 'Orbitron'; color: white; text-shadow: 0 0 10px var(--accent); font-size: 1.2rem; }
+        .logo span { color: var(--accent); }
 
-        header { padding: 15px; background: rgba(0,0,0,0.95); border-bottom: 2px solid var(--accent); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-family: 'Orbitron'; color: white; text-shadow: 0 0 10px var(--accent); letter-spacing: 2px; }
-        
-        /* BOTTOM NAV STYLING BASED ON YOUR IMAGE */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: #0a0a0a; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #1a1a1a; z-index: 2000; }
-        .nav-item { text-align: center; color: #777; font-weight: bold; font-size: 11px; font-family: 'Orbitron'; cursor: pointer; }
-        .nav-item img { width: 30px; margin-bottom: 5px; opacity: 0.6; }
-        
-        /* Active State Highlights */
-        .nav-item.active#btn-market { color: var(--market-red); }
-        .nav-item.active#btn-market img { opacity: 1; filter: drop-shadow(0 0 5px var(--market-red)); }
-        
-        .nav-item.active#btn-sell { color: #f39c12; }
-        .nav-item.active#btn-sell img { opacity: 1; }
-        
-        .nav-item.active#btn-chat { color: white; }
-        .nav-item.active#btn-chat img { opacity: 1; }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #080808; z-index: 4000; transition: 0.4s; border-right: 2px solid var(--accent); padding: 25px; backdrop-filter: blur(10px); }
+        .sidebar.active { left: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 3500; display: none; }
+        .overlay.active { display: block; }
 
-        /* MARKET UI */
-        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
-        .item-card { background: var(--card); border-radius: 15px; border: 1px solid #222; overflow: hidden; }
-        .market-media { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        
-        .kira-btn { width: 100%; padding: 10px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; font-size: 10px; }
+        .page { height: calc(100vh - 140px); overflow-y: auto; display: none; padding: 15px; padding-bottom: 120px; }
+        .page.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .item-card { background: var(--card); border-radius: 15px; border: 1px solid #222; overflow: hidden; position: relative; transition: 0.3s; }
+        .item-card:hover { border-color: var(--accent); }
+        .market-media { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #111; }
+        .del-btn { position: absolute; top: 5px; right: 5px; background: #c0392b; color: white; border: none; padding: 5px 8px; border-radius: 5px; font-size: 0.6rem; z-index: 10; font-weight: bold; }
+
+        .comment-box { background: rgba(0,0,0,0.3); padding: 8px; font-size: 0.7rem; border-top: 1px solid #222; }
+        .react-btn { background: none; border: none; color: #888; font-size: 0.7rem; cursor: pointer; margin-top: 5px; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #222; z-index: 2000; }
+        .nav-item { text-align: center; color: #555; font-size: 10px; font-weight: bold; font-family: 'Orbitron'; letter-spacing: 1px; }
+        .nav-item img { width: 28px; opacity: 0.4; margin-bottom: 2px; }
+        .nav-item.active { color: var(--active-nav); text-shadow: 0 0 5px var(--active-nav); }
+        .nav-item.active img { opacity: 1; filter: drop-shadow(0 0 5px var(--active-nav)); }
+
+        .kira-btn { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; box-shadow: 0 0 10px rgba(142,68,173,0.4); }
         .kira-input { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; border-radius: 10px; margin-bottom: 10px; outline: none; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
+    <div class="bg-overlay"></div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div style="text-align:center; margin-bottom:30px;">
+            <img id="sidePfp" src="" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--accent); object-fit:cover; box-shadow: 0 0 15px var(--accent);">
+            <h3 id="sideName" style="margin-top:10px; font-family:'Orbitron'; font-size: 0.9rem;"></h3>
+        </div>
+
+        <div id="adminPanel" class="hidden" style="background:rgba(142,68,173,0.1); padding:15px; border-radius:15px; border:1px solid var(--accent); margin-bottom:15px;">
+            <p style="color:var(--accent); font-size:0.7rem; text-align:center; font-weight:bold; margin-bottom:10px; font-family: Orbitron;">RYZO OFFLICEAL</p>
+            <input type="text" id="targetUser" class="kira-input" placeholder="User Name">
+            <input type="number" id="coinAmt" class="kira-input" placeholder="Coins">
+            <button onclick="adminAddCoins()" class="kira-btn">ADD COINS</button>
+            <button onclick="adminKickUser()" class="kira-btn" style="background:#c0392b; margin-top:5px;">KICK USER</button>
+        </div>
+
+        <div onclick="nav('homePage')" style="padding:15px; cursor:pointer; font-weight: bold;">🏠 MARKET</div>
+        <div id="sellLink" class="hidden" onclick="nav('sellPage')" style="padding:15px; cursor:pointer; font-weight: bold; color: var(--gold);">📤 POST ASSET (ADMIN)</div>
+        <div onclick="nav('chatPage')" style="padding:15px; cursor:pointer; font-weight: bold;">💬 CHATS</div>
+        <div onclick="logout()" style="padding:15px; color:var(--accent); cursor:pointer; margin-top:20px; border-top:1px solid #222;">🚪 LOGOUT</div>
+    </div>
 
     <header>
-        <div onclick="logout()" style="cursor:pointer; font-size:1.2rem; color:var(--accent);">🚪</div>
+        <div onclick="toggleSidebar()" style="cursor:pointer; font-size:1.5rem; color:var(--accent);">☰</div>
         <div class="logo">RYZO<span>OFFICIAL</span></div>
-        <div id="coinTag" style="color:var(--gold); font-weight:bold;">🪙 0</div>
+        <div id="coinTag" style="color:var(--gold); font-weight:bold; font-family: Orbitron;">🪙 0</div>
     </header>
 
     <div id="homePage" class="page active">
-        <input type="text" id="marketSearch" class="kira-input" placeholder="🔍 Search Ryzo Market...">
+        <input type="text" id="marketSearch" class="kira-input" placeholder="🔍 Search market..." oninput="filterMarket()">
         <div class="market-grid" id="marketGrid"></div>
     </div>
 
     <div id="sellPage" class="page">
-        <div style="background:var(--card); padding:20px; border-radius:20px;">
-            <h3 style="color:var(--accent); margin-bottom:15px; text-align:center;">UPLOAD TO MARKET</h3>
-            <input type="file" id="filePost" class="kira-input">
-            <input type="text" id="namePost" class="kira-input" placeholder="Project Name">
+        <div style="background:var(--card); padding:20px; border-radius:20px; border:1px solid #333;">
+            <h3 style="text-align:center; color:var(--accent); margin-bottom:15px; font-family: Orbitron;">UPLOAD ASSET</h3>
+            <input type="file" id="filePost" class="kira-input" accept="image/*,video/*">
+            <input type="text" id="namePost" class="kira-input" placeholder="Asset Name">
             <input type="number" id="pricePost" class="kira-input" placeholder="Price (Coins)">
             <input type="text" id="linkPost" class="kira-input" placeholder="Download Link">
             <button class="kira-btn" onclick="upload()">POST NOW</button>
@@ -88,76 +123,117 @@
         <div id="chatListContainer"></div>
     </div>
 
-    <div id="loginModal" style="display:none; position:fixed; inset:0; background:#000; z-index:6000; align-items:center; justify-content:center; padding:20px;">
-        <div style="text-align:center; width:100%;">
-            <h2 style="font-family:'Orbitron'; color:var(--accent); margin-bottom:20px;">RYZO SYSTEM LOGIN</h2>
-            <input type="file" id="regPic" class="kira-input">
-            <input type="text" id="regName" class="kira-input" placeholder="ENTER NICKNAME">
-            <button class="kira-btn" onclick="register()">INITIALIZE</button>
-        </div>
-    </div>
-
     <div class="bottom-nav">
         <div class="nav-item active" id="btn-market" onclick="nav('homePage')">
             <img src="https://img.icons8.com/neon/96/shopping-cart.png"><br>MARKET
-        </div>
-        <div class="nav-item" id="btn-sell" onclick="nav('sellPage')">
-            <img src="https://img.icons8.com/neon/96/outbox.png"><br>SELL
         </div>
         <div class="nav-item" id="btn-chat" onclick="nav('chatPage')">
             <img src="https://img.icons8.com/neon/96/chat.png"><br>CHATS
         </div>
     </div>
 
+    <div id="loginModal" style="display:none; position:fixed; inset:0; background:#000; z-index:6000; align-items:center; justify-content:center; padding:20px;">
+        <div style="text-align:center; width:100%; max-width:320px;">
+            <img src="https://raw.githubusercontent.com/pogisiprince/RYZO-OFFICIAL/main/1000044805.jpg" style="width:100px; border-radius:50%; border:3px solid var(--accent); margin-bottom:20px;">
+            <h1 style="color:var(--accent); font-family:Orbitron; margin-bottom:20px; font-size: 1.5rem;">RYZO LOGIN</h1>
+            <input type="file" id="regPic" class="kira-input">
+            <input type="text" id="regName" class="kira-input" placeholder="Enter Nickname">
+            <button class="kira-btn" onclick="register()">ACCESS SYSTEM</button>
+        </div>
+    </div>
+
     <script>
-        // RYZO DATABASE CONFIGURATION (AUTO-ENCODED)
-        const _0xdb = ["aHR0cHM6Ly9yeXpvLW9mZmljaWFsLWRiLWRlZmF1bHQtcnRkYi5hc2lhLXNvdXRoZWFzdDEuZmlyZWJhc2VkYXRhYmFzZS5hcHAv"];
-        const config = { databaseURL: atob(_0xdb[0]) };
+        const _0x4f22 = ["aHR0cHM6Ly9saWdodC00YjMxZS1kZWZhdWx0LXJ0ZGIuYXNpYS1zb3V0aGVhc3QxLmZpcmViYXNlZGF0YWJhc2UuYXBw"];
+        const config = { databaseURL: atob(_0x4f22[0]) };
         firebase.initializeApp(config); const db = firebase.database();
 
-        let me = localStorage.getItem('kUser'), myPic = localStorage.getItem('kPic');
+        let me = localStorage.getItem('kUser'), myPic = localStorage.getItem('kPic'), allAssets = [];
+        
+        // OWNER ID Set to "RYZO OFFICIAL" (Base64)
+        const OWNER_ID = atob("UllaTyBPRkZJQ0lBTA=="); 
 
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+        
         function nav(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(id==='homePage') document.getElementById('btn-market').classList.add('active');
-            if(id==='sellPage') document.getElementById('btn-sell').classList.add('active');
             if(id==='chatPage') document.getElementById('btn-chat').classList.add('active');
+            if(document.getElementById('sidebar').classList.contains('active')) toggleSidebar();
         }
 
         function init() {
             if(!me) { document.getElementById('loginModal').style.display = 'flex'; return; }
+            document.getElementById('sidePfp').src = myPic;
+            document.getElementById('sideName').innerText = me;
+            
+            if(me === OWNER_ID) {
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('sellLink').classList.remove('hidden');
+            }
+
             db.ref('users/'+me+'/coins').on('value', s => { document.getElementById('coinTag').innerText = "🪙 " + (s.val()||0); });
             db.ref('market').on('value', s => {
-                const g = document.getElementById('marketGrid'); g.innerHTML = "";
-                s.forEach(c => {
-                    const i = c.val();
-                    g.innerHTML += `
-                    <div class="item-card">
-                        <img src="${i.media}" class="market-media">
-                        <div style="padding:10px;">
-                            <b style="font-size:0.8rem; display:block; margin-bottom:5px;">${i.name}</b>
-                            <span style="color:var(--gold); font-weight:bold; font-size:0.9rem;">🪙 ${i.price}</span>
-                            <button class="kira-btn" style="margin-top:8px;" onclick="window.open('${i.link}')">GET ASSET</button>
-                        </div>
-                    </div>`;
-                });
+                allAssets = []; s.forEach(c => { allAssets.push({...c.val(), key: c.key}); });
+                filterMarket();
+            });
+        }
+
+        function filterMarket() {
+            const term = document.getElementById('marketSearch').value.toLowerCase();
+            const g = document.getElementById('marketGrid'); g.innerHTML = "";
+            const isOwner = (me === OWNER_ID);
+
+            allAssets.filter(a => a.name.toLowerCase().includes(term)).forEach(i => {
+                const isVideo = i.mediaType === 'video';
+                g.innerHTML += `
+                <div class="item-card">
+                    ${isOwner ? `<button class="del-btn" onclick="adminDeleteItem('${i.key}')">REMOVE</button>` : ''}
+                    ${isVideo ? `<video src="${i.media}" class="market-media" loop controls muted autoplay></video>` : `<img src="${i.media}" class="market-media">`}
+                    <div style="padding:10px;">
+                        <b style="font-size:0.75rem; color: #fff;">${i.name}</b><br>
+                        <span style="color:var(--gold); font-weight:bold; font-size: 0.9rem;">🪙 ${i.price}</span>
+                        <button class="kira-btn" style="padding:6px; font-size:0.6rem; margin-top:8px;" onclick="buy('${i.link}', ${i.price})">PURCHASE</button>
+                    </div>
+                </div>`;
             });
         }
 
         function upload() {
+            if(me !== OWNER_ID) return alert("Unauthorized.");
             const f = document.getElementById('filePost').files[0], n = document.getElementById('namePost').value, p = document.getElementById('pricePost').value, l = document.getElementById('linkPost').value;
-            if(!f || !n) return alert("Complete details!");
+            if(!f || !n) return;
             const r = new FileReader(); r.readAsDataURL(f);
-            r.onload = () => { db.ref('market').push({name:n, price:p, seller:me, link:l, media:r.result}).then(()=>nav('homePage')); };
+            r.onload = () => { 
+                db.ref('market').push({
+                    name:n, price:p, link:l, media:r.result, 
+                    mediaType: f.type.startsWith('video') ? 'video' : 'image'
+                }).then(()=>nav('homePage')); 
+            };
+        }
+
+        function buy(link, price) {
+            db.ref('users/'+me+'/coins').get().then(s => {
+                if((s.val()||0) >= price) {
+                    db.ref('users/'+me).update({coins: s.val() - price});
+                    window.open(link, "_blank");
+                } else alert("Not enough coins!");
+            });
+        }
+
+        function adminDeleteItem(k) { if(confirm("Delete this?")) db.ref('market/'+k).remove(); }
+        
+        function adminAddCoins() {
+            const t = document.getElementById('targetUser').value, a = parseInt(document.getElementById('coinAmt').value);
+            db.ref('users/'+t+'/coins').once('value', s => { db.ref('users/'+t).update({coins: (s.val()||0) + a}); alert("Coins added!"); });
         }
 
         function register() {
             const n = document.getElementById('regName').value.trim(), f = document.getElementById('regPic').files[0];
-            if(!n || !f) return alert("Nickname and Pic required!");
+            if(!n || !f) return;
             const r = new FileReader(); r.readAsDataURL(f);
-            r.onload = () => { localStorage.setItem('kUser', n); localStorage.setItem('kPic', r.result); db.ref('users/'+n).update({pfp: r.result, coins: 0}); location.reload(); };
+            r.onload = () => { localStorage.setItem('kUser', n); localStorage.setItem('kPic', r.result); location.reload(); };
         }
 
         function logout() { localStorage.clear(); location.reload(); }
