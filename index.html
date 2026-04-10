@@ -6,6 +6,7 @@
     <title>RYZO OFFICIAL | SECURED OS</title>
     
     <script>
+        // Anti-Inspect Security
         document.onkeydown = function(e) {
             if(e.keyCode == 123 || (e.ctrlKey && (e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.keyCode == 85))) {
                 return false;
@@ -67,11 +68,35 @@
         .kira-btn { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; box-shadow: 0 0 10px rgba(142,68,173,0.4); }
         .kira-input { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; border-radius: 10px; margin-bottom: 10px; outline: none; }
         .hidden { display: none !important; }
+
+        /* Top Up Selection Style */
+        .topup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 7000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .topup-modal { background: #111; border: 2px solid var(--accent); border-radius: 20px; width: 100%; max-width: 300px; padding: 20px; text-align: center; }
+        .topup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .amt-btn { background: var(--card); border: 1px solid #333; color: white; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .amt-btn:hover { background: var(--accent); border-color: white; }
     </style>
 </head>
 <body>
     <div class="bg-overlay"></div>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="topup-overlay" id="topupModal">
+        <div class="topup-modal">
+            <h3 style="font-family: Orbitron; color: var(--gold); margin-bottom: 10px;">SELECT AMOUNT</h3>
+            <div class="topup-grid">
+                <div class="amt-btn" onclick="sendTopUp(20)">🪙 20</div>
+                <div class="amt-btn" onclick="sendTopUp(30)">🪙 30</div>
+                <div class="amt-btn" onclick="sendTopUp(50)">🪙 50</div>
+                <div class="amt-btn" onclick="sendTopUp(100)">🪙 100</div>
+                <div class="amt-btn" onclick="sendTopUp(500)">🪙 500</div>
+                <div class="amt-btn" onclick="sendTopUp(1000)">🪙 1000</div>
+                <div class="amt-btn" onclick="sendTopUp(1500)">🪙 1500</div>
+                <div class="amt-btn" onclick="sendTopUp(2000)">🪙 2000</div>
+            </div>
+            <button class="kira-btn" style="margin-top: 15px; background: #444;" onclick="closeTopUp()">CANCEL</button>
+        </div>
+    </div>
 
     <div class="sidebar" id="sidebar">
         <div style="text-align:center; margin-bottom:30px;">
@@ -87,7 +112,7 @@
         </div>
 
         <div onclick="nav('homePage')" style="padding:15px; cursor:pointer; font-weight: bold;">🏠 MARKET</div>
-        <div onclick="topup()" style="padding:15px; cursor:pointer; font-weight: bold; color: var(--gold);">🪙 TOP UP COINS</div>
+        <div onclick="openTopUp()" style="padding:15px; cursor:pointer; font-weight: bold; color: var(--gold);">🪙 TOP UP COINS</div>
         <div id="sellLink" class="hidden" onclick="nav('sellPage')" style="padding:15px; cursor:pointer; font-weight: bold; color: var(--accent);">📤 POST ASSET (ADMIN)</div>
         <div onclick="nav('chatPage')" style="padding:15px; cursor:pointer; font-weight: bold;">💬 CHATS</div>
         <div onclick="logout()" style="padding:15px; color:var(--accent); cursor:pointer; margin-top:20px; border-top:1px solid #222;">🚪 LOGOUT</div>
@@ -146,11 +171,20 @@
         let me = localStorage.getItem('kUser'), myPic = localStorage.getItem('kPic'), allAssets = [];
         const OWNER_ID = atob("UllaTyBPRkZJQ0lBTA=="); // RYZO OFFICIAL
         
-        // TELEGRAM LINK - Palitan mo nalang yung username mo sa baba
-        const TG_OWNER = "https://t.me/justicelight"; 
+        // TELEGRAM OWNER
+        const TG_OWNER = "https://t.me/RyzoGG"; 
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
         
+        function openTopUp() { document.getElementById('topupModal').style.display = 'flex'; if(document.getElementById('sidebar').classList.contains('active')) toggleSidebar(); }
+        function closeTopUp() { document.getElementById('topupModal').style.display = 'none'; }
+        
+        function sendTopUp(amount) {
+            alert("Redirecting to Owner's Telegram...");
+            window.open(`${TG_OWNER}?text=Hello! I want to top up ${amount} coins. %0AMy nickname is: ${me}`, "_blank");
+            closeTopUp();
+        }
+
         function nav(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -170,20 +204,11 @@
                 document.getElementById('sellLink').classList.remove('hidden');
             }
 
-            // SEPARATED PATH: RYZO_DATA/
             db.ref('RYZO_DATA/users/'+me+'/coins').on('value', s => { document.getElementById('coinTag').innerText = "🪙 " + (s.val()||0); });
             db.ref('RYZO_DATA/market').on('value', s => {
                 allAssets = []; s.forEach(c => { allAssets.push({...c.val(), key: c.key}); });
                 filterMarket();
             });
-        }
-
-        function topup() {
-            const amount = prompt("How many coins do you want to buy?");
-            if(amount) {
-                alert("Redirecting to Owner's Telegram for payment...");
-                window.open(`${TG_OWNER}?text=Hello! I want to top up ${amount} coins. My nickname is: ${me}`, "_blank");
-            }
         }
 
         function filterMarket() {
