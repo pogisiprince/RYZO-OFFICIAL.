@@ -6,7 +6,6 @@
     <title>RYZO OFFICIAL | SECURED OS</title>
     
     <script>
-        // Anti-Inspect Security
         document.onkeydown = function(e) {
             if(e.keyCode == 123 || (e.ctrlKey && (e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.keyCode == 85))) {
                 return false;
@@ -59,9 +58,6 @@
         .market-media { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #111; }
         .del-btn { position: absolute; top: 5px; right: 5px; background: #c0392b; color: white; border: none; padding: 5px 8px; border-radius: 5px; font-size: 0.6rem; z-index: 10; font-weight: bold; }
 
-        .comment-box { background: rgba(0,0,0,0.3); padding: 8px; font-size: 0.7rem; border-top: 1px solid #222; }
-        .react-btn { background: none; border: none; color: #888; font-size: 0.7rem; cursor: pointer; margin-top: 5px; }
-
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #222; z-index: 2000; }
         .nav-item { text-align: center; color: #555; font-size: 10px; font-weight: bold; font-family: 'Orbitron'; letter-spacing: 1px; }
         .nav-item img { width: 28px; opacity: 0.4; margin-bottom: 2px; }
@@ -88,11 +84,11 @@
             <input type="text" id="targetUser" class="kira-input" placeholder="User Name">
             <input type="number" id="coinAmt" class="kira-input" placeholder="Coins">
             <button onclick="adminAddCoins()" class="kira-btn">ADD COINS</button>
-            <button onclick="adminKickUser()" class="kira-btn" style="background:#c0392b; margin-top:5px;">KICK USER</button>
         </div>
 
         <div onclick="nav('homePage')" style="padding:15px; cursor:pointer; font-weight: bold;">🏠 MARKET</div>
-        <div id="sellLink" class="hidden" onclick="nav('sellPage')" style="padding:15px; cursor:pointer; font-weight: bold; color: var(--gold);">📤 POST ASSET (ADMIN)</div>
+        <div onclick="topup()" style="padding:15px; cursor:pointer; font-weight: bold; color: var(--gold);">🪙 TOP UP COINS</div>
+        <div id="sellLink" class="hidden" onclick="nav('sellPage')" style="padding:15px; cursor:pointer; font-weight: bold; color: var(--accent);">📤 POST ASSET (ADMIN)</div>
         <div onclick="nav('chatPage')" style="padding:15px; cursor:pointer; font-weight: bold;">💬 CHATS</div>
         <div onclick="logout()" style="padding:15px; color:var(--accent); cursor:pointer; margin-top:20px; border-top:1px solid #222;">🚪 LOGOUT</div>
     </div>
@@ -148,9 +144,10 @@
         firebase.initializeApp(config); const db = firebase.database();
 
         let me = localStorage.getItem('kUser'), myPic = localStorage.getItem('kPic'), allAssets = [];
+        const OWNER_ID = atob("UllaTyBPRkZJQ0lBTA=="); // RYZO OFFICIAL
         
-        // OWNER ID Set to "RYZO OFFICIAL" (Base64)
-        const OWNER_ID = atob("UllaTyBPRkZJQ0lBTA=="); 
+        // TELEGRAM LINK - Palitan mo nalang yung username mo sa baba
+        const TG_OWNER = "https://t.me/justicelight"; 
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
         
@@ -173,11 +170,20 @@
                 document.getElementById('sellLink').classList.remove('hidden');
             }
 
-            db.ref('users/'+me+'/coins').on('value', s => { document.getElementById('coinTag').innerText = "🪙 " + (s.val()||0); });
-            db.ref('market').on('value', s => {
+            // SEPARATED PATH: RYZO_DATA/
+            db.ref('RYZO_DATA/users/'+me+'/coins').on('value', s => { document.getElementById('coinTag').innerText = "🪙 " + (s.val()||0); });
+            db.ref('RYZO_DATA/market').on('value', s => {
                 allAssets = []; s.forEach(c => { allAssets.push({...c.val(), key: c.key}); });
                 filterMarket();
             });
+        }
+
+        function topup() {
+            const amount = prompt("How many coins do you want to buy?");
+            if(amount) {
+                alert("Redirecting to Owner's Telegram for payment...");
+                window.open(`${TG_OWNER}?text=Hello! I want to top up ${amount} coins. My nickname is: ${me}`, "_blank");
+            }
         }
 
         function filterMarket() {
@@ -206,7 +212,7 @@
             if(!f || !n) return;
             const r = new FileReader(); r.readAsDataURL(f);
             r.onload = () => { 
-                db.ref('market').push({
+                db.ref('RYZO_DATA/market').push({
                     name:n, price:p, link:l, media:r.result, 
                     mediaType: f.type.startsWith('video') ? 'video' : 'image'
                 }).then(()=>nav('homePage')); 
@@ -214,19 +220,19 @@
         }
 
         function buy(link, price) {
-            db.ref('users/'+me+'/coins').get().then(s => {
+            db.ref('RYZO_DATA/users/'+me+'/coins').get().then(s => {
                 if((s.val()||0) >= price) {
-                    db.ref('users/'+me).update({coins: s.val() - price});
+                    db.ref('RYZO_DATA/users/'+me).update({coins: s.val() - price});
                     window.open(link, "_blank");
                 } else alert("Not enough coins!");
             });
         }
 
-        function adminDeleteItem(k) { if(confirm("Delete this?")) db.ref('market/'+k).remove(); }
+        function adminDeleteItem(k) { if(confirm("Delete this?")) db.ref('RYZO_DATA/market/'+k).remove(); }
         
         function adminAddCoins() {
             const t = document.getElementById('targetUser').value, a = parseInt(document.getElementById('coinAmt').value);
-            db.ref('users/'+t+'/coins').once('value', s => { db.ref('users/'+t).update({coins: (s.val()||0) + a}); alert("Coins added!"); });
+            db.ref('RYZO_DATA/users/'+t+'/coins').once('value', s => { db.ref('RYZO_DATA/users/'+t).update({coins: (s.val()||0) + a}); alert("Coins added!"); });
         }
 
         function register() {
